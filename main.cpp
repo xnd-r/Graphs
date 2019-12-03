@@ -2,8 +2,6 @@
 #include "document.h"
 #include "filereadstream.h"
 #include <vector>
-#include <cmath>
-#include <algorithm>
 using namespace rapidjson;
 
 using namespace std;
@@ -60,6 +58,7 @@ void dijkstra_seq(std::vector<std::vector<int> >& weights, std::vector<int>& dis
                 p.push_back(v);
             }
         }
+
     }
 }
 
@@ -83,7 +82,7 @@ std::vector<std::vector<int> > parse_json(const char* filename){
         const rapidjson::Value& attribute = *itr;
         assert(attribute.IsObject()); // each attribute is an object
         for (rapidjson::Value::ConstMemberIterator itr2 = attribute.MemberBegin(); itr2 != attribute.MemberEnd(); ++itr2) {
-            std::cout << itr2->name.GetString() << " : " << itr2->value.GetString() << std::endl;
+//            std::cout << itr2->name.GetString() << " : " << itr2->value.GetString() << std::endl;
             vertics.push_back(atoi(itr2->value.GetString()));
         }
     }
@@ -111,7 +110,7 @@ std::vector<std::vector<int> > parse_json(const char* filename){
     return weights;
 }
 int main(){
-    const char* filename = "/home/xndr/devel/repos/pyrgg/test_graph.json";
+    const char* filename = "./graph.json";
     std::vector<std::vector<int> > mat = parse_json(filename);
     std::vector<int> dist;
     for(int i = 0; i < mat.size(); ++i) {
@@ -120,7 +119,7 @@ int main(){
 //    bf_seq(mat, dist);
     std::vector<int> path;
     dijkstra_seq(mat, dist, path);
-    for (auto it = path.begin(); it != path.end(); ++it) {
+    for (auto it = dist.begin(); it != dist.end(); ++it) {
         std::cout << *it << "\t";
     }
 
