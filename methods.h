@@ -93,7 +93,7 @@ double dijkstra_pq(std::vector<std::vector<std::pair<int, int> > >& adj_list, st
         }
     }
     else if (algo_type == "d_ary"){
-        boost::heap::d_ary_heap<std::pair<int, int>, boost::heap::arity<2> > prior_q;
+        boost::heap::d_ary_heap<std::pair<int, int>, boost::heap::arity<3> > prior_q;
         prior_q.push(std::make_pair(0, s));
         while (!prior_q.empty()) {
             // v -- vertex what has minimum distance among all unvisited vertices

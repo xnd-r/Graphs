@@ -849,15 +849,16 @@ class Nodz(QtWidgets.QGraphicsView):
             target = connection[1]
             targetNode = target.split('.')[0]
             targetAttr = target.split('.')[1]
-
+            opt = connection[2].split('.')[0]
+            dist = connection[2].split('.')[1]
             self.createConnection(sourceNode, sourceAttr,
-                                  targetNode, targetAttr)
+                                  targetNode, targetAttr, distance=dist, is_opt=bool(opt))
 
         self.scene().update()
 
         # Emit signal.
 
-    def createConnection(self, sourceNode, sourceAttr, targetNode, targetAttr, is_opt=False):
+    def createConnection(self, sourceNode, sourceAttr, targetNode, targetAttr, distance, is_opt):
         """
         Create a manual connection.
 
@@ -877,17 +878,17 @@ class Nodz(QtWidgets.QGraphicsView):
         plug = self.scene().nodes[sourceNode].plugs[sourceAttr]
         socket = self.scene().nodes[targetNode].sockets[targetAttr]
 
-        connection = ConnectionItem(plug.center(), socket.center(), plug, socket, is_opt)
-
+        connection = ConnectionItem(plug.center(), socket.center(), plug, socket, distance, is_opt)
         connection.plugNode = plug.parentItem().name
         connection.plugAttr = plug.attribute
         connection.socketNode = socket.parentItem().name
         connection.socketAttr = socket.attribute
+        connection.distance = distance
+        connection.is_opt=is_opt
         plug.connect(socket, connection)
         socket.connect(plug, connection)
 
         connection.updatePath()
-
         self.scene().addItem(connection)
 
         return connection
@@ -1540,7 +1541,7 @@ class SlotItem(QtWidgets.QGraphicsItem):
             self.newConnection = ConnectionItem(self.center(),
                                                 self.mapToScene(event.pos()),
                                                 self,
-                                                None)
+                                                None, None, None)
 
             self.connections.append(self.newConnection)
             self.scene().addItem(self.newConnection)
@@ -1878,7 +1879,7 @@ class ConnectionItem(QtWidgets.QGraphicsPathItem):
 
     """
 
-    def __init__(self, source_point, target_point, source, target, is_opt=False):
+    def __init__(self, source_point, target_point, source, target, distance, is_opt):
         """
         Initialize the class.
 
@@ -1916,6 +1917,7 @@ class ConnectionItem(QtWidgets.QGraphicsPathItem):
         self.movable_point = None
 
         self.data = tuple()
+        self.distance = distance
         self.is_opt = is_opt
         # Methods.
         self._createStyle()
@@ -1940,7 +1942,8 @@ class ConnectionItem(QtWidgets.QGraphicsPathItem):
 
         """
         return ("{0}.{1}".format(self.plugNode, self.plugAttr),
-                "{0}.{1}".format(self.socketNode, self.socketAttr))
+                "{0}.{1}".format(self.socketNode, self.socketAttr),
+                "{0}.{1}".format(self.is_opt, self.distance))
 
     def mousePressEvent(self, event):
         """
