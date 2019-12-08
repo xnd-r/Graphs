@@ -852,7 +852,7 @@ class Nodz(QtWidgets.QGraphicsView):
             opt = connection[2].split('.')[0]
             dist = connection[2].split('.')[1]
             self.createConnection(sourceNode, sourceAttr,
-                                  targetNode, targetAttr, distance=dist, is_opt=bool(opt))
+                                  targetNode, targetAttr, distance=dist, is_opt=str(opt))
 
         self.scene().update()
 
@@ -1930,7 +1930,7 @@ class ConnectionItem(QtWidgets.QGraphicsPathItem):
         config = self.source.scene().views()[0].config
         self.setAcceptHoverEvents(True)
         self.setZValue(-1)
-        if self.is_opt == True:
+        if self.is_opt == "True":
             self._pen = QtGui.QPen(utils._convertDataToColor(config['opt_connection_color']))
         else:
             self._pen = QtGui.QPen(utils._convertDataToColor(config['connection_color']))

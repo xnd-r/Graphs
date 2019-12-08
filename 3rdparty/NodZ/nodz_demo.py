@@ -53,11 +53,17 @@ for i, node in enumerate(node_names):
 
 for i, node in enumerate(node_names):
     for j in adj_dict[i]:
-        nodz.createAttribute(node=nodes[i], name='node{}:{}'.format(j[0], j[1]), index=-1, preset='attr_preset_1', plug=True, 
-        socket=True, dataType=int, plugMaxConnections=10000, socketMaxConnections=10000)
+        nodz.createAttribute(node=nodes[i], 
+        name='node{}:{}'.format(j[0], j[1]), 
+        index=-1, preset='attr_preset_1', plug=True, 
+        socket=True, dataType=int, 
+        plugMaxConnections=10000, socketMaxConnections=10000)
 
 for i, edge in enumerate(edges):
-    nodz.createConnection(edge[0], 'node{}:{}'.format(edge[1], weights[i]), edge[1], 'node{}:{}'.format(edge[0], weights[i]), distance=weights[i], is_opt=False)
+    nodz.createConnection(edge[0], 
+    'node{}:{}'.format(edge[1], weights[i]), edge[1], 
+    'node{}:{}'.format(edge[0], weights[i]), 
+    distance=weights[i], is_opt=False)
 
 # Graph
 print( nodz.evaluateGraph())
