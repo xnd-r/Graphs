@@ -3,6 +3,8 @@ import nodz_main
 import json
 import time
 import math
+# TODO: add sys
+
 try:
     app = QtWidgets.QApplication([])
 except:
@@ -15,8 +17,9 @@ nodz.initialize()
 nodz.show()
 
 pi = 3.1415926
+# conf = nodz_utils.loadConfig("./default_config.json")
 
-with open("../../graph.json", "r") as f:
+with open("../../test.json", "r") as f:
     text_json = f.read()
     rgg_graph = json.loads(text_json)
     node_names = []
@@ -29,6 +32,7 @@ with open("../../graph.json", "r") as f:
             edges.append([int(i["source"]), int(i["target"])])
             weights.append(int(i["weight"]))
 print(node_names)
+print("**"*20)
 nvertics = len(node_names) 
 print(edges)
 print(weights)
@@ -36,19 +40,20 @@ print(weights)
 adj_dict = []
 for i in range(len(node_names)):
     adj_dict.append([])
-for i in range(len(node_names)+1):
-    for k, j in enumerate(edges):
-        if j[0] == i:
-            adj_dict[i-1].append([j[1], weights[k]])
-            adj_dict[j[1]-1].append([i, weights[k]])
+
+for i, nd in enumerate(node_names):
+    for j, ed in enumerate(edges):
+        if ed[0] == nd:
+            adj_dict[i].append([ed[1], weights[j]])
+            #adj_dict[adj_dict.index(ed[1])].append([nd, weights[j]])    
 
 print(adj_dict)
 nodes = []
 x_c, y_c = 1000, 1000
-
+max_node_size = max([len(i) for i in adj_dict])
 for i, node in enumerate(node_names):
-    x = math.cos((pi/2 + 2*pi*i)/nvertics) * 350
-    y = math.sin((pi/2 + 2*pi*i)/nvertics) *350
+    x = math.cos((pi/2 + 2*pi*i)/nvertics) * max_node_size * 100
+    y = math.sin((pi/2 + 2*pi*i)/nvertics) * max_node_size * 100
     nodes.append(nodz.createNode(name=node, preset='node_default', position=QtCore.QPoint(x_c+x, y_c+y)))
 
 for i, node in enumerate(node_names):
