@@ -51,7 +51,7 @@ def json_maker(node_dict, edge_list):
     for i in edge_list:
 
         edges = edges + '\t\t\t{\n\t\t\t\t"source": ' + '"' + str(i[0]) + '",\n\t\t\t\t' + '"target": ' + '"' + str(
-            i[1]) + '",\n\t\t\t\t' + '"weight": ' + '"' + str(get_dist(str(i[0]), str(i[1]), nodes)) + '"\n\t\t\t},\n'
+            i[1]) + '",\n\t\t\t\t' + '"weight": ' + '"' + str(get_dist(str(i[0]), str(i[1]), node_dict)) + '"\n\t\t\t},\n'
     edges = edges[:-2] + "\n\t\t]\n\t}\n}"        
     file.write('{\n\t"graph": {\n')
     file.write(nodes)
@@ -62,7 +62,7 @@ def json_maker(node_dict, edge_list):
 
 
 import xml.etree.ElementTree as ET
-tree = ET.parse('./kremlin.xml')
+tree = ET.parse('./unn.xml')
 root = tree.getroot()
 
 nodes = {}

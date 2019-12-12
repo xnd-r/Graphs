@@ -1,5 +1,6 @@
 from PyQt5 import QtCore, QtWidgets
 import nodz_main
+import parse_xml
 import json
 import time
 import math
@@ -16,21 +17,29 @@ nodz = nodz_main.Nodz(None)
 nodz.initialize()
 nodz.show()
 
+minlat=56.2967600
+minlon=43.9766800
+# maxlat=56.3293500, 
+# maxlon=44.0062200
 pi = 3.1415926
 # conf = nodz_utils.loadConfig("./default_config.json")
-
-with open("../../test.json", "r") as f:
+new_y, new_x = parse_xml.georg2decar(minlat, minlon)
+with open("/home/xndr/devel/c++/Graphs/test.json", "r") as f:
     text_json = f.read()
     rgg_graph = json.loads(text_json)
     node_names = []
+    dlat, dlon = [], []
     for i in rgg_graph["graph"]["nodes"]:
         node_names.append(int(i["id"]))
+        dlat.append(float(i["lat"]))
+
+        dlon.append(float(i["lon"]))
     edges = []
     weights = []
     for i in rgg_graph["graph"]["edges"]:
-        if int(i["weight"])!=-1 and int(i["source"]) != int(i["target"]):
-            edges.append([int(i["source"]), int(i["target"])])
-            weights.append(int(i["weight"]))
+        if float(i["weight"])!=-1 and float(i["source"]) != float(i["target"]):
+            edges.append([float(i["source"]), float(i["target"])])
+            weights.append(float(i["weight"]))
 print(node_names)
 print("**"*20)
 nvertics = len(node_names) 
@@ -44,30 +53,36 @@ for i in range(len(node_names)):
 for i, nd in enumerate(node_names):
     for j, ed in enumerate(edges):
         if ed[0] == nd:
-            adj_dict[i].append([ed[1], weights[j]])
-            #adj_dict[adj_dict.index(ed[1])].append([nd, weights[j]])    
+            adj_dict[i].append([ed[1], int(weights[j])])
+            adj_dict[node_names.index(int(ed[1]))].append([nd, int(weights[j])])    
+
+for i in range(len(adj_dict)):
+    if len(adj_dict[i]) == 0:
+            adj_dict[i].append([float(i), 0])
 
 print(adj_dict)
 nodes = []
-x_c, y_c = 1000, 1000
+x_c, y_c = 2000, 2000
 max_node_size = max([len(i) for i in adj_dict])
 for i, node in enumerate(node_names):
-    x = math.cos((pi/2 + 2*pi*i)/nvertics) * max_node_size * 100
-    y = math.sin((pi/2 + 2*pi*i)/nvertics) * max_node_size * 100
+    y, x = parse_xml.georg2decar(dlat[i], dlon[i])
+    y, x = (y-new_y) * 25, (x-new_x) * 25
+    # x = math.cos((pi/2 + 2*pi*i)/nvertics) * max_node_size * 100
+    # y = math.sin((pi/2 + 2*pi*i)/nvertics) * max_node_size * 100
     nodes.append(nodz.createNode(name=node, preset='node_default', position=QtCore.QPoint(x_c+x, y_c+y)))
 
 for i, node in enumerate(node_names):
     for j in adj_dict[i]:
         nodz.createAttribute(node=nodes[i], 
-        name='node{}:{}'.format(j[0], j[1]), 
+        name='node{}:{}'.format(int(j[0]), int(j[1])), 
         index=-1, preset='attr_preset_1', plug=True, 
         socket=True, dataType=int, 
         plugMaxConnections=10000, socketMaxConnections=10000)
 
 for i, edge in enumerate(edges):
-    nodz.createConnection(edge[0], 
-    'node{}:{}'.format(edge[1], weights[i]), edge[1], 
-    'node{}:{}'.format(edge[0], weights[i]), 
+    nodz.createConnection(int(edge[0]), 
+    'node{}:{}'.format(int(edge[1]), int(weights[i])), int(edge[1]), 
+    'node{}:{}'.format(int(edge[0]), int(weights[i])), 
     distance=weights[i], is_opt=False)
 
 # Graph
