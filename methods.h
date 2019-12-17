@@ -8,7 +8,6 @@
 
 
 double bf_seq(std::vector<std::vector<int> >& weights, std::vector<int>& dist) {
-    DEBUG_INFO("bf_seq started");
     dist[0] = 0;
     bool is_change;
     clock_t t1 = clock();
@@ -30,14 +29,11 @@ double bf_seq(std::vector<std::vector<int> >& weights, std::vector<int>& dist) {
         }
     }
     double t2 = (double)(clock() - t1) / CLOCKS_PER_SEC;
-    DEBUG_INFO("Worktime is %f sec", t2);
-    DEBUG_INFO("bf_seq finished");
     return t2;
 }
 
 
 double dijkstra_seq(std::vector<std::vector<int> >& weights, std::vector<int>& dist){
-    DEBUG_INFO("dijkstra_seq started");
     int n_vertics = weights.size();
     std::vector<bool> visited (n_vertics, false);
     dist[0] = 0;
@@ -58,14 +54,11 @@ double dijkstra_seq(std::vector<std::vector<int> >& weights, std::vector<int>& d
 
     }
     double t2 = (double)(clock() - t1) / CLOCKS_PER_SEC;
-    DEBUG_INFO("Worktime is %f sec", t2);
-    DEBUG_INFO("dijkstra_seq finished");
     return t2;
 }
 
 
 double dijkstra_pq(std::vector<std::vector<std::pair<int, int> > >& adj_list, std::vector<int>& dist, std::string algo_type) {
-//    DEBUG_INFO("dijkstra_pq started");
     int s = 0; // стартовая вершина
     int n = adj_list.size();
     std::vector<int> path(n);
@@ -132,8 +125,9 @@ double dijkstra_pq(std::vector<std::vector<std::pair<int, int> > >& adj_list, st
             }
         }
     }
+    else{
+        std::cout << "Unnamed algo_type" << std::endl;
+    }
     double t2 = (double)(clock() - t1) / CLOCKS_PER_SEC;
-//    DEBUG_INFO("Worktime is %f sec", t2);
-//    DEBUG_INFO("dijkstra_pq finished");
     return t2;
 }

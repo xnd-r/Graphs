@@ -2,6 +2,58 @@ import os
 import json
 import re
 from PyQt5 import QtCore, QtGui
+import math
+
+def show_demo(graph, nodz):
+    with open(graph, "r") as f:
+        text_json = f.read()
+        rgg_graph = json.loads(text_json)
+        node_names = []
+        for i in rgg_graph["graph"]["nodes"]:
+            node_names.append(int(i["id"]))
+        edges, weights = [], []
+        for i in rgg_graph["graph"]["edges"]:
+            if float(i["weight"])!=-1:
+                edges.append([float(i["source"]), float(i["target"])])
+                weights.append(float(i["weight"]))
+
+    nvertics = len(node_names) 
+    print("nvertics: {}, nedges: {}".format(nvertics, len(edges)))
+    adj_dict = []
+    for i in range(len(node_names)):
+        adj_dict.append([])
+
+    for i, nd in enumerate(node_names):
+        for j, ed in enumerate(edges):
+            if ed[0] == nd:
+                adj_dict[i].append([ed[1], int(weights[j])])
+                adj_dict[node_names.index(int(ed[1]))].append([nd, int(weights[j])])    
+
+    for i in range(len(adj_dict)):
+        if len(adj_dict[i]) == 0:
+                adj_dict[i].append([float(i), 0])
+    nodes = []
+    x_c, y_c = 1000, 1000
+    max_node_size = max([len(i) for i in adj_dict])
+    for i, node in enumerate(node_names):
+        x = math.cos((math.pi/2 + 2*math.pi*i)/nvertics) * max_node_size * 100
+        y = math.sin((math.pi/2 + 2*math.pi*i)/nvertics) * max_node_size * 100
+        nodes.append(nodz.createNode(name=node, preset='node_preset_1', position=QtCore.QPoint(x_c+x, y_c-y)))
+
+    for i, node in enumerate(node_names):
+        for j in adj_dict[i]:
+            nodz.createAttribute(node=nodes[i], 
+            name='node{}:{}'.format(int(j[0]), int(j[1])), 
+            index=-1, preset='attr_preset_1', plug=True, 
+            socket=True, dataType=int, 
+            plugMaxConnections=10000, socketMaxConnections=10000)
+
+    for i, edge in enumerate(edges):
+        nodz.createConnection(int(edge[0]), 
+        'node{}:{}'.format(int(edge[1]), int(weights[i])), int(edge[1]), 
+        'node{}:{}'.format(int(edge[0]), int(weights[i])), 
+        distance=weights[i], is_opt=False)
+
 
 
 def _convertDataToColor(data=None, alternate=False, av=20):
