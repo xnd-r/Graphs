@@ -23,7 +23,6 @@ void parse_json(const char* filename, std::string parse_type,
     for (rapidjson::Value::ConstValueIterator itr = d["graph"]["nodes"].Begin(); itr != d["graph"]["nodes"].End(); ++itr) {
         const rapidjson::Value& attribute = *itr;
         for (rapidjson::Value::ConstMemberIterator itr2 = attribute.MemberBegin(); itr2 != attribute.MemberEnd(); ++itr2) {
-//            std::cout << itr2->name.GetString() << " : " << itr2->value.GetString() << std::endl;
             vertices.push_back(atoi(itr2->value.GetString()));
         }
     }
@@ -39,11 +38,15 @@ void parse_json(const char* filename, std::string parse_type,
         for (rapidjson::Value::ConstValueIterator itr = d["graph"]["edges"].Begin();
              itr != d["graph"]["edges"].End(); ++itr) {
             const rapidjson::Value &attribute = *itr;
-//        std::cout << attribute["source"].GetString() << " : " << attribute["target"].GetString() << std::endl;
+//            ad_list[atoi(attribute["source_cnt"].GetString()) - 1].push_back(std::make_pair(
+//                    atoi(attribute["target_cnt"].GetString()) - 1, atoi(attribute["weight"].GetString())));
+//            ad_list[atoi(attribute["target_cnt"].GetString()) - 1].push_back(std::make_pair(
+//                    atoi(attribute["source_cnt"].GetString()) - 1, atoi(attribute["weight"].GetString())));
             ad_list[atoi(attribute["source"].GetString()) - 1].push_back(std::make_pair(
                     atoi(attribute["target"].GetString()) - 1, atoi(attribute["weight"].GetString())));
             ad_list[atoi(attribute["target"].GetString()) - 1].push_back(std::make_pair(
                     atoi(attribute["source"].GetString()) - 1, atoi(attribute["weight"].GetString())));
+
         }
         fclose(fp);
     }
@@ -55,7 +58,6 @@ void parse_json(const char* filename, std::string parse_type,
         for (rapidjson::Value::ConstValueIterator itr = d["graph"]["edges"].Begin();
              itr != d["graph"]["edges"].End(); ++itr) {
             const rapidjson::Value &attribute = *itr;
-//        std::cout << attribute["source"].GetString() << " : " << attribute["target"].GetString() << std::endl;
             weights[atoi(attribute["source"].GetString()) - 1][atoi(attribute["target"].GetString()) - 1]
                     = atoi(attribute["weight"].GetString());
             weights[atoi(attribute["target"].GetString()) - 1][atoi(attribute["source"].GetString()) - 1]

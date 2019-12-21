@@ -6,9 +6,9 @@ import math
 import argparse
 
 parser = argparse.ArgumentParser(description='Shortest path in graph demo')
-parser.add_argument('--graph_type', type=str, default="dense", \
+parser.add_argument('--graph_type', type=str, default="real", \
     help="may be dense(m = n * n / 4), sparse (m = 2n) and real (unn map)")
-parser.add_argument('--graph_path', type=str, default="", \
+parser.add_argument('--graph_path', type=str, default="/home/xndr/devel/c++/Graphs/demo_graphs/unn.json", \
     help="full path to json file")    
 args = parser.parse_args()
 
@@ -30,18 +30,33 @@ else:
     pi = 3.1415926
     new_y, new_x = nodz_main.georg2decar(minlat, minlon)
 
-    with open("/home/xndr/devel/c++/Graphs/demo_graphs/unn.json", "r") as f:
+    with open("/home/xndr/devel/c++/Graphs/unn_restoration.txt", "r") as restor:
+        restor_weights = []
+        restor_nodes = []
+        data = restor.readlines()
+        for line in data:
+            restor_weights.append(int(line.split(" ")[1]))
+            restor_nodes.append(float(line.split(" ")[0]))
+        restor_weights = restor_weights[1:]
+        print(restor_weights)
+        print(restor_nodes)
+        restor_edges = []
+        for n in range(len(restor_nodes)-1):
+            restor_edges.append([restor_nodes[n], restor_nodes[n+1]])
+        print(restor_edges)
+
+    with open(args.graph_path, "r") as f:
         text_json = f.read()
         rgg_graph = json.loads(text_json)
         node_names, dlat, dlon = [], [], []
         for i in rgg_graph["graph"]["nodes"]:
-            node_names.append(int(i["id"]))
+            node_names.append(int(i["cnt"]))
             dlat.append(float(i["lat"]))
             dlon.append(float(i["lon"]))
         edges, weights = [], []
         for i in rgg_graph["graph"]["edges"]:
-            if float(i["weight"])!=-1 and float(i["source"]) != float(i["target"]):
-                edges.append([float(i["source"]), float(i["target"])])
+            if float(i["weight"])!=-1 and float(i["source_cnt"]) != float(i["target_cnt"]):
+                edges.append([float(i["source_cnt"]), float(i["target_cnt"])])
                 weights.append(float(i["weight"]))
 
     nvertics = len(node_names) 
@@ -76,10 +91,16 @@ else:
             plugMaxConnections=10000, socketMaxConnections=10000)
 
     for i, edge in enumerate(edges):
-        nodz.createConnection(int(edge[0]), 
-        'node{}:{}'.format(int(edge[1]), int(weights[i])), int(edge[1]), 
-        'node{}:{}'.format(int(edge[0]), int(weights[i])), 
-        distance=weights[i], is_opt=False)
+        if edge not in restor_edges:
+            nodz.createConnection(int(edge[0]), 
+            'node{}:{}'.format(int(edge[1]), int(weights[i])), int(edge[1]), 
+            'node{}:{}'.format(int(edge[0]), int(weights[i])), 
+            distance=weights[i], is_opt=False)
+        else:
+            nodz.createConnection(int(edge[0]), 
+            'node{}:{}'.format(int(edge[1]), int(restor_weights[restor_edges.index(edge)])), int(edge[1]), 
+            'node{}:{}'.format(int(edge[0]), int(restor_weights[restor_edges.index(edge)])), 
+            distance=weights[i], is_opt=True)
 
 
 # Graph

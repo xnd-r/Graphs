@@ -2,8 +2,6 @@
 #include "etc.h"
 #include "methods.h"
 
-
-
 int main(int argc, char** argv){
     const char* filename = argv[1];
     std::string parse_type = argv[2]; // may be "mat" or "list"
@@ -26,6 +24,5 @@ int main(int argc, char** argv){
         std::vector<int> dist (adj_list.size(), INF);
         std::cout << "\n\n\n" << dijkstra_pq(adj_list, dist, algo_type) << std::endl;
     }
-
     return 0;
 }

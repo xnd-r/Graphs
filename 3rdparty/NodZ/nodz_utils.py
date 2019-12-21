@@ -5,6 +5,21 @@ from PyQt5 import QtCore, QtGui
 import math
 
 def show_demo(graph, nodz):
+    with open("/home/xndr/devel/c++/Graphs/restoration.txt", "r") as restor:
+        restor_weights = []
+        restor_nodes = []
+        data = restor.readlines()
+        for line in data:
+            restor_weights.append(int(line.split(" ")[1]))
+            restor_nodes.append(float(line.split(" ")[0]))
+        restor_weights = restor_weights[1:]
+        print(restor_weights)
+        print(restor_nodes)
+        restor_edges = []
+        for n in range(len(restor_nodes)-1):
+            restor_edges.append([restor_nodes[n], restor_nodes[n+1]])
+        print(restor_edges)
+        
     with open(graph, "r") as f:
         text_json = f.read()
         rgg_graph = json.loads(text_json)
@@ -49,10 +64,17 @@ def show_demo(graph, nodz):
             plugMaxConnections=10000, socketMaxConnections=10000)
 
     for i, edge in enumerate(edges):
-        nodz.createConnection(int(edge[0]), 
-        'node{}:{}'.format(int(edge[1]), int(weights[i])), int(edge[1]), 
-        'node{}:{}'.format(int(edge[0]), int(weights[i])), 
-        distance=weights[i], is_opt=False)
+        if edge not in restor_edges:
+            nodz.createConnection(int(edge[0]), 
+            'node{}:{}'.format(int(edge[1]), int(weights[i])), int(edge[1]), 
+            'node{}:{}'.format(int(edge[0]), int(weights[i])), 
+            distance=weights[i], is_opt=False)
+        else:
+            nodz.createConnection(int(edge[0]), 
+            'node{}:{}'.format(int(edge[1]), int(restor_weights[restor_edges.index(edge)])), int(edge[1]), 
+            'node{}:{}'.format(int(edge[0]), int(restor_weights[restor_edges.index(edge)])), 
+            distance=weights[i], is_opt=True)
+
 
 
 

@@ -4,6 +4,7 @@
 #include "boost/heap/d_ary_heap.hpp"
 #include "boost/heap/binomial_heap.hpp"
 #include <ctime>
+#include <fstream>
 #define DEBUG_INFO(f, args...) fprintf(stderr, "%s_%s\t%s:%d:%s():\t\t\t" f, __DATE__, __TIME__, __FILE__, __LINE__, __func__, ##args);
 
 
@@ -59,9 +60,15 @@ double dijkstra_seq(std::vector<std::vector<int> >& weights, std::vector<int>& d
 
 
 double dijkstra_pq(std::vector<std::vector<std::pair<int, int> > >& adj_list, std::vector<int>& dist, std::string algo_type) {
-    int s = 0; // стартовая вершина
+    int s = 0; //adj_list[0][0].first; // стартовая вершина
     int n = adj_list.size();
+//    for(int i = 0; i < n; ++i){
+//        if(adj_list[i].size() == 0){
+//            adj_list[i].push_back(std::make_pair(s, 100));
+//        }
+//    }
     std::vector<int> path(n);
+    std::vector< std::pair<int, int> > ancestors (n);
     dist[s] = 0;
     clock_t t1 = clock();
     if(algo_type == "pq") {
@@ -79,14 +86,30 @@ double dijkstra_pq(std::vector<std::vector<std::pair<int, int> > >& adj_list, st
                 if (dist[v] + len < dist[to]) {
                     dist[to] = dist[v] + len;
                     path[to] = v;
+                    ancestors[to] = std::make_pair(v, len);
                     prior_q.push(std::make_pair(-dist[to], to));
                 }
-
             }
         }
+
+        std::vector< std::pair<int, int> > path_restoration;
+        for (int v=5; v!=s; v=ancestors[v].first)
+            path_restoration.push_back(std::make_pair(v+1, ancestors[v].second));
+        path_restoration.push_back(std::make_pair(s+1, 0));
+        reverse (path_restoration.begin(), path_restoration.end());
+
+        std::ofstream out;
+        out.open("./restoration.txt");
+        if (out.is_open())
+        {
+            for(auto it = path_restoration.begin(); it != path_restoration.end(); ++it){
+                out << (*it).first << " " << (*it).second << "\n";
+            }
+        }
+//        std::cout << "\n";
     }
     else if (algo_type == "d_ary"){
-        boost::heap::d_ary_heap<std::pair<int, int>, boost::heap::arity<3> > prior_q;
+        boost::heap::d_ary_heap<std::pair<int, int>, boost::heap::arity<5> > prior_q;
         prior_q.push(std::make_pair(0, s));
         while (!prior_q.empty()) {
             // v -- vertex what has minimum distance among all unvisited vertices

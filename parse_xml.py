@@ -45,13 +45,15 @@ def json_maker(node_dict, edge_list):
     for i in node_dict.keys():
         nodes = nodes + '\t\t\t{\n\t\t\t\t' + \
             '"id": ' + '"' + i + '",\n\t\t\t\t"lat": "' + \
-             str(node_dict[i][0]) + '",\n\t\t\t\t"lon": "' + str(node_dict[i][1]) + '"\n\t\t\t},\n'
+             str(node_dict[i][0]) + '",\n\t\t\t\t"lon": "' + str(node_dict[i][1]) + '",\n\t\t\t\t"cnt": "' + str(node_dict[i][2]) + '"\n\t\t\t},\n'
     nodes = nodes[:-2] + "\n\t\t],\n"
     edges = '\t\t\t"edges":[\n'
     for i in edge_list:
 
         edges = edges + '\t\t\t{\n\t\t\t\t"source": ' + '"' + str(i[0]) + '",\n\t\t\t\t' + '"target": ' + '"' + str(
-            i[1]) + '",\n\t\t\t\t' + '"weight": ' + '"' + str(get_dist(str(i[0]), str(i[1]), node_dict)) + '"\n\t\t\t},\n'
+            i[1]) + '",\n\t\t\t\t' + '"weight": ' + '"' + str(get_dist(str(i[0]), str(i[1]), node_dict)) + '",\n\t\t\t\t' + '"source_cnt": ' + '"' + str(
+            i[2]) + '",\n\t\t\t\t' + '"target_cnt": ' + '"' + str(
+            i[3]) + '"\n\t\t\t},\n'
     edges = edges[:-2] + "\n\t\t]\n\t}\n}"        
     file.write('{\n\t"graph": {\n')
     file.write(nodes)
@@ -64,24 +66,21 @@ def json_maker(node_dict, edge_list):
 import xml.etree.ElementTree as ET
 tree = ET.parse('./unn.xml')
 root = tree.getroot()
-
+cnt = 1
 nodes = {}
 for elem in root:
     if elem.tag == 'node':
-        nodes[elem.attrib['id']] = [float(elem.attrib['lat']), float(elem.attrib['lon'])]
-
+        nodes[elem.attrib['id']] = [float(elem.attrib['lat']), float(elem.attrib['lon']), cnt]
+        cnt += 1
 edges = []
-counter = 0
 for elem in root:
    # for subelem in elem:
     if elem.tag == 'way':
-        counter += 1
         for i in range(len(elem)-1):
             if elem[i].tag == "nd" and elem[i+1].tag == "nd":
-                edges.append([elem[i].attrib["ref"], elem[i+1].attrib["ref"]])
-                # print(elem[i].attrib)
-                # print(elem[i+1].attrib)
-                # print("**"*20)
+                edges.append([elem[i].attrib["ref"], elem[i+1].attrib["ref"], 
+                nodes[elem[i].attrib["ref"]][2], nodes[elem[i+1].attrib["ref"]][2]])
+
         # exit()  
 # for ed in edges:
 #     print(ed)
